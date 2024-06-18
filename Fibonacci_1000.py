@@ -150,8 +150,8 @@ def memoizedFibonacci(n):
     memFibParam(memFibParam, n)
     
 
-timeMemoizedFibonacci=timeAsync(memoizedFibonacci)
-timeMemoizedFibonacci(fibonacci, 78)
+timeMemoizedFibonacci=timeIt(memoizedFibonacci)
+timeMemoizedFibonacci(78)
 
 
 #timeMemoizedFibonacci=timeIt(fibonacciParam(78))
