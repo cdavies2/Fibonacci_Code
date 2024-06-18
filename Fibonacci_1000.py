@@ -26,9 +26,10 @@ decorate(10)
 
 #We can measure how long a function takes with the timeIt decorator
 def timeIt(function):
-    def timed(args):
+    def timed(*args):
         start=time.time()
-        print(function(args))
+        for i in args:
+            print(function(i))
         end=time.time()
         print("Ran in", end-start, "ms")
     return timed
@@ -50,28 +51,38 @@ timeNaive(10000000)
 timeNaive(int(1e9))
 #timeNaive(int(1e9)) ran in 41.76961064338684 ms
 
-def timeAsync(function):
-    async def timed(args):
+async def timeAsync(function):
+    async def timed(*args):
         start=time.time()
-        await asyncio.sleep(1)
-        print(function(args))
+        for i in args:
+           out= await function(i)
         end=time.time()
+        print(out)
         print("Ran in", end-start, "ms")
+        return out
     return timed
 
+async def naive_async(n):
+    total=0
+    for i in range(0, n):
+        total+=i
+    return total
 
+async def main(n):
+    timer_async_naive=await timeAsync(naive_async)
+    await timer_async_naive(int(n))
 
-timeAsyncNaive=timeAsync(naive)
-timeAsyncNaive(int(1e9))
+asyncio.run(main(1e9))
 #Memoization can allow us to cache function calls according to their arguments
 #The technique trades space for time, and can make code run faster
 
 memory={}
 def memoize(f):
-    def lookup(num):
-        if num not in memory:
-            memory[num]=f(num)
-        return memory[num]
+    def lookup(*num):
+        for i in num:
+            if i not in memory:
+                memory[i]=f(i)
+        return memory[i]
     return lookup
 
 #Let's make a new fibonacci method to test this decorator
@@ -125,18 +136,22 @@ def throttle(fn, interval):
 #This uses parameterization since the function itself is now a parameter
 #Once the function is memoized, each recursive call takes advantage of the memo table
 #This approach is VERY fast
-
+#@memoize
 def fibonacciParam(fibonacci, num):
     if num==1 or num ==2:
         return 1
     else:
         return fibonacci(num-1) + fibonacci(num-2)
-    
+
+   
 
 memFibParam=memoize(fibonacciParam)
 def memoizedFibonacci(n):
     memFibParam(memFibParam, n)
     
 
-timeMemoizedFibonacci=timeIt(memoizedFibonacci)
-timeMemoizedFibonacci(78)
+timeMemoizedFibonacci=timeAsync(memoizedFibonacci)
+timeMemoizedFibonacci(fibonacci, 78)
+
+
+#timeMemoizedFibonacci=timeIt(fibonacciParam(78))
