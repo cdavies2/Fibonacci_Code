@@ -169,7 +169,14 @@ def fibonacciParam(fibonacci, num):
 
 timeMemoizedFibonacci=timed(fibonacciParam)
 timeMemoizedFibonacci(fibonacci, 78)
-timeMemoizedFibonacci(fibonacci, 100)
-timeMemoizedFibonacci(fibonacci, 1000)
+fn_100=timeMemoizedFibonacci(fibonacci, 100)
+fn_1000=timeMemoizedFibonacci(fibonacci, 1000)
+
+def get_length(fn):
+    length=len(str(fn))
+    return length
+
+print("The length of fn1000 is", get_length(fn_1000), "digits")
+
 
 #timeMemoizedFibonacci=timeIt(fibonacciParam(78))
