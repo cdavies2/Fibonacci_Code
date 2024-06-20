@@ -1,5 +1,5 @@
 # We will use decorators to give our Fibaonnaci function more resources
-import time, asyncio
+import time, asyncio, functools
 # A Basic "Decorator"
 def functionA(n):
     print("Here is n:", n)
@@ -73,6 +73,27 @@ async def main(n):
     await timer_async_naive(int(n))
 
 asyncio.run(main(1e9))
+
+# Let's use an improved timing decorator
+from datetime import datetime
+
+def timed(func):
+    """
+    Wrap a function in a timer.
+    """
+    def timed_func(*args, **kwargs):
+        now = datetime.now
+        s_0 = now()
+        value = func(*args, **kwargs)
+        s_1 = now()
+        print(value)
+        print('%s' % (s_1 - s_0))
+        return value
+    return timed_func
+
+
+
+
 #Memoization can allow us to cache function calls according to their arguments
 #The technique trades space for time, and can make code run faster
 
@@ -86,7 +107,7 @@ def memoize(f):
     return lookup
 
 #Let's make a new fibonacci method to test this decorator
-
+@functools.cache
 def fibonacci(num):
     if num==1 or num==2: #these are our base cases
         return 1
@@ -98,7 +119,8 @@ def fibonacci(num):
     
     
     
-timeMemFib=timeIt(memoize(fibonacci))
+#timeMemFib=timeIt(memoize(fibonacci))
+timeMemFib=timed(fibonacci)
 timeMemFib(40)
 timeMemFib(40)
 
@@ -136,22 +158,18 @@ def throttle(fn, interval):
 #This uses parameterization since the function itself is now a parameter
 #Once the function is memoized, each recursive call takes advantage of the memo table
 #This approach is VERY fast
-#@memoize
+@functools.cache
 def fibonacciParam(fibonacci, num):
     if num==1 or num ==2:
         return 1
     else:
         return fibonacci(num-1) + fibonacci(num-2)
 
-   
 
-memFibParam=memoize(fibonacciParam)
-def memoizedFibonacci(n):
-    memFibParam(memFibParam, n)
-    
 
-timeMemoizedFibonacci=timeIt(memoizedFibonacci)
-timeMemoizedFibonacci(78)
-
+timeMemoizedFibonacci=timed(fibonacciParam)
+timeMemoizedFibonacci(fibonacci, 78)
+timeMemoizedFibonacci(fibonacci, 100)
+timeMemoizedFibonacci(fibonacci, 1000)
 
 #timeMemoizedFibonacci=timeIt(fibonacciParam(78))
